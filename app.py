@@ -1,9 +1,9 @@
 import streamlit as st
 import numpy as np
 
-# =========================================
+# ==================================================
 # PAGE CONFIG
-# =========================================
+# ==================================================
 
 st.set_page_config(
     page_title="Titanic Survival Prediction",
@@ -11,9 +11,9 @@ st.set_page_config(
     layout="centered"
 )
 
-# =========================================
+# ==================================================
 # CUSTOM CSS
-# =========================================
+# ==================================================
 
 st.markdown("""
 <style>
@@ -28,7 +28,7 @@ st.markdown("""
     color: white;
 }
 
-/* Main Title */
+/* TITLE */
 .title {
     text-align: center;
     font-size: 50px;
@@ -37,7 +37,7 @@ st.markdown("""
     margin-top: 10px;
 }
 
-/* Subtitle */
+/* SUBTITLE */
 .subtitle {
     text-align: center;
     font-size: 20px;
@@ -45,7 +45,7 @@ st.markdown("""
     margin-bottom: 30px;
 }
 
-/* Sidebar */
+/* SIDEBAR */
 section[data-testid="stSidebar"] {
     background: linear-gradient(
         180deg,
@@ -54,7 +54,7 @@ section[data-testid="stSidebar"] {
     );
 }
 
-/* Buttons */
+/* BUTTON */
 .stButton > button {
     width: 100%;
     background: linear-gradient(
@@ -70,7 +70,7 @@ section[data-testid="stSidebar"] {
     font-weight: bold;
 }
 
-/* Result Box */
+/* RESULT BOX */
 .result-box {
     padding: 25px;
     border-radius: 18px;
@@ -80,7 +80,7 @@ section[data-testid="stSidebar"] {
     margin-top: 20px;
 }
 
-/* Survive */
+/* SURVIVE */
 .survive {
     background: linear-gradient(
         90deg,
@@ -90,7 +90,7 @@ section[data-testid="stSidebar"] {
     color: white;
 }
 
-/* Not Survive */
+/* NOT SURVIVE */
 .not-survive {
     background: linear-gradient(
         90deg,
@@ -100,7 +100,7 @@ section[data-testid="stSidebar"] {
     color: white;
 }
 
-/* Metric Cards */
+/* METRICS */
 [data-testid="metric-container"] {
     background: rgba(255,255,255,0.12);
     border-radius: 16px;
@@ -108,14 +108,7 @@ section[data-testid="stSidebar"] {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Expander */
-.streamlit-expanderHeader {
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-}
-
-/* Footer Hide */
+/* FOOTER */
 footer {
     visibility: hidden;
 }
@@ -123,9 +116,9 @@ footer {
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================
+# ==================================================
 # TITLE
-# =========================================
+# ==================================================
 
 st.markdown(
     '<p class="title">🚢 Titanic Survival Prediction</p>',
@@ -137,9 +130,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# =========================================
+# ==================================================
 # SIDEBAR INPUTS
-# =========================================
+# ==================================================
 
 st.sidebar.header("Passenger Inputs")
 
@@ -164,15 +157,15 @@ target = st.sidebar.selectbox(
     format_func=lambda x: "Not Survived" if x == 0 else "Survived"
 )
 
-# =========================================
+# ==================================================
 # INITIAL WEIGHTS
-# =========================================
+# ==================================================
 
 # Input -> Hidden
 w1, w2, w3 = 0.11, 0.14, 0.17
 w4, w5, w6 = 0.21, 0.24, 0.27
 
-# Biases
+# Hidden Biases
 bh1, bh2 = 0.1, 0.1
 
 # Hidden -> Output
@@ -184,22 +177,22 @@ bo = 0.1
 # Learning Rate
 lr = 0.1
 
-# =========================================
+# ==================================================
 # SIGMOID FUNCTION
-# =========================================
+# ==================================================
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-# =========================================
-# BUTTON
-# =========================================
+# ==================================================
+# PREDICTION BUTTON
+# ==================================================
 
 if st.button("Predict Survival"):
 
-    # =====================================
+    # ==============================================
     # FORWARD PROPAGATION
-    # =====================================
+    # ==============================================
 
     net_h1 = (x1 * w1) + (x2 * w2) + (x3 * w3) + bh1
     net_h2 = (x1 * w4) + (x2 * w5) + (x3 * w6) + bh2
@@ -211,21 +204,21 @@ if st.button("Predict Survival"):
 
     predicted_output = sigmoid(net_o1)
 
-    # =====================================
+    # ==============================================
     # CLASSIFICATION
-    # =====================================
+    # ==============================================
 
     prediction = 1 if predicted_output >= 0.5 else 0
 
-    # =====================================
-    # ERROR
-    # =====================================
+    # ==============================================
+    # ERROR CALCULATION
+    # ==============================================
 
     mse = 0.5 * ((target - predicted_output) ** 2)
 
-    # =====================================
+    # ==============================================
     # BACKPROPAGATION
-    # =====================================
+    # ==============================================
 
     delta_o = (
         (predicted_output - target)
@@ -241,16 +234,16 @@ if st.button("Predict Survival"):
         h2 * (1 - h2) * (delta_o * w8)
     )
 
-    # =====================================
-    # UPDATE WEIGHTS
-    # =====================================
+    # ==============================================
+    # WEIGHT UPDATE
+    # ==============================================
 
     w7_new = w7 - (lr * delta_o * h1)
     w8_new = w8 - (lr * delta_o * h2)
 
-    # =====================================
-    # RESULT
-    # =====================================
+    # ==============================================
+    # RESULT DISPLAY
+    # ==============================================
 
     st.subheader("Prediction Result")
 
@@ -274,9 +267,9 @@ if st.button("Predict Survival"):
         </div>
         """, unsafe_allow_html=True)
 
-    # =====================================
+    # ==============================================
     # METRICS
-    # =====================================
+    # ==============================================
 
     st.subheader("Model Metrics")
 
@@ -290,7 +283,7 @@ if st.button("Predict Survival"):
 
     with col2:
         st.metric(
-            "Mean Squared Error",
+            "MSE Error",
             f"{mse:.4f}"
         )
 
@@ -300,13 +293,11 @@ if st.button("Predict Survival"):
             lr
         )
 
-    # =====================================
+    # ==============================================
     # FORWARD DETAILS
-    # =====================================
+    # ==============================================
 
     with st.expander("View Forward Propagation"):
-
-        st.write("### Hidden Layer")
 
         st.write(f"Net h1 = {net_h1:.4f}")
         st.write(f"Net h2 = {net_h2:.4f}")
@@ -314,31 +305,25 @@ if st.button("Predict Survival"):
         st.write(f"h1 Output = {h1:.4f}")
         st.write(f"h2 Output = {h2:.4f}")
 
-        st.write("### Output Layer")
-
         st.write(f"Net Output = {net_o1:.4f}")
         st.write(f"Final Prediction = {predicted_output:.4f}")
 
-    # =====================================
+    # ==============================================
     # BACKPROP DETAILS
-    # =====================================
+    # ==============================================
 
     with st.expander("View Backpropagation"):
-
-        st.write("### Gradients")
 
         st.write(f"Output Gradient = {delta_o:.4f}")
         st.write(f"Hidden Gradient h1 = {delta_h1:.4f}")
         st.write(f"Hidden Gradient h2 = {delta_h2:.4f}")
 
-        st.write("### Updated Weights")
-
         st.write(f"Updated w7 = {w7_new:.4f}")
         st.write(f"Updated w8 = {w8_new:.4f}")
 
-# =========================================
+# ==================================================
 # FOOTER
-# =========================================
+# ==================================================
 
 st.markdown("---")
 

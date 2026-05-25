@@ -1,6 +1,6 @@
-streamlit
-tensorflow-macos==2.16.1
-pandas
-numpy
-scikit-learn
-matplotlib
+streamlit>=1.45.0
+numpy>=2.0.0
+pandas>=2.2.0
+pillow>=11.0.0
+scikit-learn>=1.5.0
+matplotlib>=3.9.0

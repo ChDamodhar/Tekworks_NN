@@ -68,16 +68,6 @@ section[data-testid="stSidebar"] {
     height: 3em;
     font-size: 18px;
     font-weight: bold;
-    transition: 0.3s;
-}
-
-.stButton > button:hover {
-    transform: scale(1.03);
-    background: linear-gradient(
-        90deg,
-        #3b82f6,
-        #8b5cf6
-    );
 }
 
 /* Result Box */

@@ -1,330 +1,112 @@
 import streamlit as st
+import tensorflow as tf
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# ==================================================
-# PAGE CONFIG
-# ==================================================
-
+# Page Configuration
 st.set_page_config(
     page_title="Titanic Survival Prediction",
     page_icon="🚢",
-    layout="centered"
+    layout="wide"
 )
 
-# ==================================================
-# CUSTOM CSS
-# ==================================================
+# Load Model
+model = tf.keras.models.load_model("titanic_ann_model.h5")
 
+# Title Section
 st.markdown("""
-<style>
+# 🚢 Titanic Survival Prediction System
+### Deep Learning Based Passenger Survival Prediction
+""")
 
-.stApp {
-    background: linear-gradient(
-        135deg,
-        #0f172a,
-        #1e3a8a,
-        #7c3aed
-    );
-    color: white;
-}
+# Project Description
+st.info("""
+This application predicts whether a Titanic passenger would survive or not
+using an Artificial Neural Network (ANN) developed with TensorFlow and deployed using Streamlit.
+""")
 
-/* TITLE */
-.title {
-    text-align: center;
-    font-size: 50px;
-    font-weight: bold;
-    color: white;
-    margin-top: 10px;
-}
+# Create Columns
+col1, col2 = st.columns(2)
 
-/* SUBTITLE */
-.subtitle {
-    text-align: center;
-    font-size: 20px;
-    color: #e2e8f0;
-    margin-bottom: 30px;
-}
+# Input Section
+with col1:
 
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(
-        180deg,
-        #111827,
-        #1f2937
-    );
-}
+    st.subheader("Passenger Details")
 
-/* BUTTON */
-.stButton > button {
-    width: 100%;
-    background: linear-gradient(
-        90deg,
-        #06b6d4,
-        #3b82f6
-    );
-    color: white;
-    border: none;
-    border-radius: 12px;
-    height: 3em;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* RESULT BOX */
-.result-box {
-    padding: 25px;
-    border-radius: 18px;
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    margin-top: 20px;
-}
-
-/* SURVIVE */
-.survive {
-    background: linear-gradient(
-        90deg,
-        #16a34a,
-        #22c55e
-    );
-    color: white;
-}
-
-/* NOT SURVIVE */
-.not-survive {
-    background: linear-gradient(
-        90deg,
-        #dc2626,
-        #ef4444
-    );
-    color: white;
-}
-
-/* METRICS */
-[data-testid="metric-container"] {
-    background: rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 15px;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-/* FOOTER */
-footer {
-    visibility: hidden;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ==================================================
-# TITLE
-# ==================================================
-
-st.markdown(
-    '<p class="title">🚢 Titanic Survival Prediction</p>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<p class="subtitle">Artificial Neural Network using Forward & Backpropagation</p>',
-    unsafe_allow_html=True
-)
-
-# ==================================================
-# SIDEBAR INPUTS
-# ==================================================
-
-st.sidebar.header("Passenger Inputs")
-
-x1 = st.sidebar.slider(
-    "Passenger Class (Normalized)",
-    0.0, 1.0, 0.20
-)
-
-x2 = st.sidebar.slider(
-    "Age (Normalized)",
-    0.0, 1.0, 0.24
-)
-
-x3 = st.sidebar.slider(
-    "Fare (Normalized)",
-    0.0, 1.0, 0.80
-)
-
-target = st.sidebar.selectbox(
-    "Actual Survival",
-    [0, 1],
-    format_func=lambda x: "Not Survived" if x == 0 else "Survived"
-)
-
-# ==================================================
-# INITIAL WEIGHTS
-# ==================================================
-
-# Input -> Hidden
-w1, w2, w3 = 0.11, 0.14, 0.17
-w4, w5, w6 = 0.21, 0.24, 0.27
-
-# Hidden Biases
-bh1, bh2 = 0.1, 0.1
-
-# Hidden -> Output
-w7, w8 = 0.31, 0.34
-
-# Output Bias
-bo = 0.1
-
-# Learning Rate
-lr = 0.1
-
-# ==================================================
-# SIGMOID FUNCTION
-# ==================================================
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-# ==================================================
-# PREDICTION BUTTON
-# ==================================================
-
-if st.button("Predict Survival"):
-
-    # ==============================================
-    # FORWARD PROPAGATION
-    # ==============================================
-
-    net_h1 = (x1 * w1) + (x2 * w2) + (x3 * w3) + bh1
-    net_h2 = (x1 * w4) + (x2 * w5) + (x3 * w6) + bh2
-
-    h1 = sigmoid(net_h1)
-    h2 = sigmoid(net_h2)
-
-    net_o1 = (h1 * w7) + (h2 * w8) + bo
-
-    predicted_output = sigmoid(net_o1)
-
-    # ==============================================
-    # CLASSIFICATION
-    # ==============================================
-
-    prediction = 1 if predicted_output >= 0.5 else 0
-
-    # ==============================================
-    # ERROR CALCULATION
-    # ==============================================
-
-    mse = 0.5 * ((target - predicted_output) ** 2)
-
-    # ==============================================
-    # BACKPROPAGATION
-    # ==============================================
-
-    delta_o = (
-        (predicted_output - target)
-        * predicted_output
-        * (1 - predicted_output)
+    pclass = st.selectbox(
+        "Passenger Class",
+        [1, 2, 3]
     )
 
-    delta_h1 = (
-        h1 * (1 - h1) * (delta_o * w7)
+    age = st.slider(
+        "Age",
+        1,
+        80,
+        25
     )
 
-    delta_h2 = (
-        h2 * (1 - h2) * (delta_o * w8)
+    fare = st.number_input(
+        "Fare",
+        min_value=0.0,
+        value=50.0
     )
 
-    # ==============================================
-    # WEIGHT UPDATE
-    # ==============================================
+# Prediction Section
+with col2:
 
-    w7_new = w7 - (lr * delta_o * h1)
-    w8_new = w8 - (lr * delta_o * h2)
+    st.subheader("Prediction Area")
 
-    # ==============================================
-    # RESULT DISPLAY
-    # ==============================================
+    if st.button("Predict Survival"):
 
-    st.subheader("Prediction Result")
+        # Data Preprocessing
+        # Example normalization
 
-    if prediction == 1:
+        pclass_norm = pclass / 3
+        age_norm = age / 80
+        fare_norm = fare / 500
 
-        st.markdown(f"""
-        <div class="result-box survive">
-        ✅ Passenger Likely to SURVIVE
-        <br><br>
-        Prediction Score: {predicted_output:.4f}
-        </div>
-        """, unsafe_allow_html=True)
+        # Convert to array
+        input_data = np.array([
+            [pclass_norm, age_norm, fare_norm]
+        ])
 
-    else:
+        # Prediction
+        prediction = model.predict(input_data)
 
-        st.markdown(f"""
-        <div class="result-box not-survive">
-        ❌ Passenger Likely to NOT SURVIVE
-        <br><br>
-        Prediction Score: {predicted_output:.4f}
-        </div>
-        """, unsafe_allow_html=True)
+        probability = prediction[0][0]
 
-    # ==============================================
-    # METRICS
-    # ==============================================
+        # Prediction Logic
+        if probability > 0.5:
+            result = "✅ Survived"
+        else:
+            result = "❌ Not Survived"
 
-    st.subheader("Model Metrics")
+        # Output Display
+        st.success(f"Prediction: {result}")
 
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
         st.metric(
-            "Predicted Output",
-            f"{predicted_output:.4f}"
+            label="Survival Probability",
+            value=f"{probability*100:.2f}%"
         )
 
-    with col2:
+        confidence = max(probability, 1 - probability)
+
         st.metric(
-            "MSE Error",
-            f"{mse:.4f}"
+            label="Confidence Score",
+            value=f"{confidence*100:.2f}%"
         )
 
-    with col3:
-        st.metric(
-            "Learning Rate",
-            lr
-        )
+        # Visualization
+        st.subheader("Prediction Visualization")
 
-    # ==============================================
-    # FORWARD DETAILS
-    # ==============================================
+        labels = ["Survival", "Non-Survival"]
+        values = [probability, 1 - probability]
 
-    with st.expander("View Forward Propagation"):
+        fig, ax = plt.subplots()
 
-        st.write(f"Net h1 = {net_h1:.4f}")
-        st.write(f"Net h2 = {net_h2:.4f}")
+        ax.bar(labels, values)
 
-        st.write(f"h1 Output = {h1:.4f}")
-        st.write(f"h2 Output = {h2:.4f}")
+        ax.set_ylabel("Probability")
 
-        st.write(f"Net Output = {net_o1:.4f}")
-        st.write(f"Final Prediction = {predicted_output:.4f}")
-
-    # ==============================================
-    # BACKPROP DETAILS
-    # ==============================================
-
-    with st.expander("View Backpropagation"):
-
-        st.write(f"Output Gradient = {delta_o:.4f}")
-        st.write(f"Hidden Gradient h1 = {delta_h1:.4f}")
-        st.write(f"Hidden Gradient h2 = {delta_h2:.4f}")
-
-        st.write(f"Updated w7 = {w7_new:.4f}")
-        st.write(f"Updated w8 = {w8_new:.4f}")
-
-# ==================================================
-# FOOTER
-# ==================================================
-
-st.markdown("---")
-
-st.caption("Built using Streamlit + NumPy")
+        st.pyplot(fig)
